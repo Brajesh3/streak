@@ -1,6 +1,8 @@
 # Streak
 
 - **s:** 0 days
+- **b:** 0 days
+
 - **b:** 1 day
 
 | Date       | s   | b   |
