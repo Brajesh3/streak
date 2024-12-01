@@ -15,7 +15,11 @@ jobs:
 
       - name: Add Today's Date and Update Streak
         run: |
-          today=$(date -u +"%Y-%m-%d")
+          # Set the timezone to India Standard Time (IST)
+          export TZ="Asia/Kolkata"
+          
+          # Get today's date in IST
+          today=$(date +"%Y-%m-%d")
           
           # Check if today's date is already in the table
           if ! grep -q "| $today |" README.md; then
