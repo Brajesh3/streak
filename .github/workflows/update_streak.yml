@@ -3,7 +3,7 @@ name: Update Streak
 on:
   schedule:
     - cron: '30 22 * * *'  # Runs at 10:30 PM UTC every day
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update-streak:
@@ -24,7 +24,7 @@ jobs:
           # Check if today's date is already in the table
           if ! grep -q "| $today |" README.md; then
             # Append today's date with empty values if missing
-            sed -i "/| Date       |/a| $today |     |     |" README.md
+            sed -i "/| Date       |/a| $today | 0 | 0 |" README.md
           fi
 
           # Calculate streaks for 's' and 'b'
