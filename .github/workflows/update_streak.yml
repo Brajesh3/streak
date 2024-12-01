@@ -12,17 +12,32 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Update Streak Table
+      - name: Add Today if Missing and Calculate Streak
         run: |
-          today=$(date -u +"%d %b")
-          sed -i "/| $today |/s/|       |       |/| 0     | 0     |/" README.md
+          today=$(date -u +"%Y-%m-%d")
 
-      - name: Commit Changes
+          # Check if today's date exists; if not, append it
+          if ! grep -q "| $today |" README.md; then
+            sed -i "/| Date       |/a| $today |     |     |" README.md
+          fi
+
+          # Calculate streaks for 's' and 'b'
+          s_streak=$(awk '/\|/{if($3=="1"){s++}else{s=0}}END{print s}' README.md)
+          b_streak=$(awk '/\|/{if($4=="1"){b++}else{b=0}}END{print b}' README.md)
+
+          # Update streak section
+          sed -i "s/\*\*s:\*\* [0-9]* days/\*\*s:\*\* $s_streak days/" README.md
+          sed -i "s/\*\*b:\*\* [0-9]* days/\*\*b:\*\* $b_streak days/" README.md
+
+      - name: Format Markdown with Prettier
+        run: |
+          npm install -g prettier
+          prettier --write README.md
+
+      - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
           git commit -m "Update streak for $today" || echo "No changes to commit"
-
-      - name: Push Changes
-        run: git push
+          git push
