@@ -2,7 +2,7 @@ name: Update Streak
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight UTC
+    - cron: '30 22 * * *' # Runs daily at midnight UTC
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -13,12 +13,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Add Today if Missing and Calculate Streak
+      - name: Add Today's Date and Update Streak
         run: |
           today=$(date -u +"%Y-%m-%d")
 
-          # Check if today's date exists; if not, append it
+          # Check if today's date exists
           if ! grep -q "| $today |" README.md; then
+            # Append today's date with empty values if missing
             sed -i "/| Date       |/a| $today |     |     |" README.md
           fi
 
@@ -26,9 +27,13 @@ jobs:
           s_streak=$(awk '/\|/{if($3=="1"){s++}else{s=0}}END{print s}' README.md)
           b_streak=$(awk '/\|/{if($4=="1"){b++}else{b=0}}END{print b}' README.md)
 
-          # Update streak section
-          sed -i "s/\*\*s:\*\* [0-9]* days/\*\*s:\*\* $s_streak days/" README.md
-          sed -i "s/\*\*b:\*\* [0-9]* days/\*\*b:\*\* $b_streak days/" README.md
+          # Remove duplicate streak entries
+          sed -i '/\*\*s:\*\* [0-9]* days/d' README.md
+          sed -i '/\*\*b:\*\* [0-9]* days/d' README.md
+
+          # Insert updated streak values
+          sed -i "2i- **s:** $s_streak days" README.md
+          sed -i "3i- **b:** $b_streak days" README.md
 
       - name: Format Markdown with Prettier
         run: |
